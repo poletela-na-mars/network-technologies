@@ -13,28 +13,34 @@ public class UDPServer implements Closeable {
 
     final private DatagramSocket socket;
 
-    private byte[] receivingDataBuffer = new byte[1024];
-    private byte[] sendingDataBuffer = new byte[1024];
+    private byte[] receivingDataBuffer = new byte[1048];
+    private byte[] sendingDataBuffer = new byte[1048];
 
     public void start() throws IOException {
+        System.out.println("S: Server has started at port " + socket.getLocalPort());
+        var random = new Random();
+
         while (true) {
-            System.out.println("S: Server has started at port " + socket.getLocalPort());
             var inputPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
 
+            System.out.println("---------------------------------");
             System.out.println("S: Waiting for a client's message");
-            socket.receive(inputPacket);
-
-            var receivedData = new String(inputPacket.getData());
-
-            System.out.println("S: Received a client's (" + inputPacket.getAddress().getHostAddress() +
-                    ":" + inputPacket.getPort() + ")" + " message: " + receivedData);
-
-            var random = new Random();
 
             if (random.nextInt(10) < 4) {
                 System.out.println("S: Packet drop!");
                 continue;
             }
+
+            try {
+                socket.receive(inputPacket);
+            } catch (IOException e) {
+                break;
+            }
+
+            var receivedData = new String(inputPacket.getData(), 0, inputPacket.getLength());
+
+            System.out.println("S: Received a client's (" + inputPacket.getAddress().getHostAddress() +
+                    ":" + inputPacket.getPort() + ")" + " message: " + receivedData);
 
             sendingDataBuffer = receivedData.toUpperCase().getBytes();
 

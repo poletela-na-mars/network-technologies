@@ -18,13 +18,21 @@ public class Main {
         var random = new Random();
         var port = random.nextInt(65536 - 1024) + 1024;
 
-        try (var udpServer = new UDPServer(port); var udpClient = new UDPClient()) {
-            udpServer.start();
+        try (var udpServer = new UDPServer(port)) {
+            new Thread(() -> {
+                try {
+                    udpServer.start();
+                } catch (IOException e) {
+                    System.err.println("A problem with the server occurred: " + e);
+                }
+            }).start();
 
-            int i = 0;
-            while (i < 10) {
-                i++;
-                udpClient.ping("127.0.0.1", port, 1000);
+            try (var udpClient = new UDPClient()) {
+                int i = 0;
+                while (i < 10) {
+                    i++;
+                    udpClient.ping("127.0.0.1", port, 1000);
+                }
             }
         }
     }
