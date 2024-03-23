@@ -1,5 +1,6 @@
 package org.networklabs;
 
+import org.networklabs.smtp.SMTPClient;
 import org.networklabs.updpinger.UDPClient;
 import org.networklabs.updpinger.UDPServer;
 import org.networklabs.webserver.HttpServer;
@@ -15,25 +16,31 @@ public class Main {
 //        }
 
         // 2. UPD-pinger
-        var random = new Random();
-        var port = random.nextInt(65536 - 1024) + 1024;
+//        var random = new Random();
+//        var port = random.nextInt(65536 - 1024) + 1024;
+//
+//        try (var udpServer = new UDPServer(port)) {
+//            new Thread(() -> {
+//                try {
+//                    udpServer.start();
+//                } catch (IOException e) {
+//                    System.err.println("A problem with the server occurred: " + e);
+//                }
+//            }).start();
+//
+//            try (var udpClient = new UDPClient()) {
+//                int i = 0;
+//                while (i < 10) {
+//                    i++;
+//                    udpClient.ping("127.0.0.1", port, 1000);
+//                }
+//            }
+//        }
 
-        try (var udpServer = new UDPServer(port)) {
-            new Thread(() -> {
-                try {
-                    udpServer.start();
-                } catch (IOException e) {
-                    System.err.println("A problem with the server occurred: " + e);
-                }
-            }).start();
-
-            try (var udpClient = new UDPClient()) {
-                int i = 0;
-                while (i < 10) {
-                    i++;
-                    udpClient.ping("127.0.0.1", port, 1000);
-                }
-            }
+        // 3. SMTP
+        try (var smtpClient = new SMTPClient()) {
+            smtpClient.openConnection("smtp.gmail.com", 10000, 25);
+            smtpClient.send("network@test.test", "network2@test.test", "Say hello");
         }
     }
 }
